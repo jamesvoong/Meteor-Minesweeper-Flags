@@ -1,0 +1,11 @@
+table.game-board {
+  margin: auto;
+
+  tr td {
+    border: 1px solid white;
+    width: 43px;
+    height: 43px;
+    font-size: 30px;
+    text-align: center;
+  }
+}
