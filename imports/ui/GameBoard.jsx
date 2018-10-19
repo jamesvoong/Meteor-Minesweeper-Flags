@@ -13,6 +13,12 @@ export default class GameBoard extends Component {
       userSelectGame.call({gameId: game._id, row: row, col: col})
     } else {
       userMarkGame.call({gameId: game._id, row: row, col: col});
+      if (game.hiddenBoard[row][col] == 'M') {
+        new Audio('/audio/Flag.mp3').play();
+      } else {
+        new Audio('/audio/Sploosh.mp3').play();
+      }
+
     }
   }
 
@@ -21,10 +27,15 @@ export default class GameBoard extends Component {
   }
 
   renderCell(row, col) {
-    let value = this.props.game.board[row][col];
-    let LSR = this.props.game.lastSelected[0];
-    let LSC = this.props.game.lastSelected[1];
-    if (value === null && LSR == row && LSC == col) {
+    let game = this.props.game;
+    let value = game.board[row][col];
+    let LSR = game.lastSelected[0];
+    let LSC = game.lastSelected[1];
+    let LMR = game.lastMove[0];
+    let LMC = game.lastMove[1];
+    console.log(game.currentTurn);
+    console.log(game.userIndex(this.props.user));
+    if (value === null && LSR == row && LSC == col && game.currentTurn == game.userIndex(this.props.user)) {
       console.log("lastSelected changed")
       return (
         <td onClick={this.handleCellClick.bind(this, row, col)}>
@@ -37,6 +48,13 @@ export default class GameBoard extends Component {
           <img src="/images/notDiscovered.png" height="44" width="44"/>
         </td>
       );
+    } else if (LMR == row && LMC == col) {
+      var source = '/images/' + String(value) + 'L.png';
+      return (
+        <td>
+          <img src={source} height="44" width="44"/>
+        </td>
+      )
     } else {
       var source = '/images/' + String(value) + '.png';
       return (
@@ -45,6 +63,7 @@ export default class GameBoard extends Component {
         </td>
       )
     }
+
   }
 
   renderStatus() {
@@ -52,7 +71,7 @@ export default class GameBoard extends Component {
     let status = "";
     if (game.status === GameStatuses.STARTED) {
       let playerIndex = game.currentTurn;
-      status = `Current player: ${game.players[playerIndex].username}`;
+      status = `Current Turn: ${game.players[playerIndex].username}`;
     } else if (game.status === GameStatuses.FINISHED) {
       let playerIndex = game.winner();
       if (playerIndex === null) {
@@ -65,6 +84,25 @@ export default class GameBoard extends Component {
     return (
       <div>{status}</div>
     )
+  }
+
+  renderBomb(playerIndex) {
+    let game = this.props.game;
+    if (game.hasBomb[playerIndex] == false) {
+      return (
+        <img src='/images/megaBombUsed.png' height="47" width="65"/>
+      )
+    } else if (game.hasBomb[playerIndex] == true && game.scores[playerIndex] < game.scores[(playerIndex+1)%2]) {
+      return (
+        <img src='/images/megaBombUnused.png' height="47" width="65"/>
+      )
+    } else {
+      return (
+        <img src='/images/megaBombDisabled.png' height="47" width="65"/>
+      )
+    }
+
+
   }
 
   renderTable() {
@@ -95,10 +133,10 @@ export default class GameBoard extends Component {
           <div className="ui grid">
             <div className="ui two column center aligned row">
               <div className="ui column">
-                {this.props.game.players[0].username} <br/> <img src="/images/P0.png" height="44" width="44"/> <br/>{this.props.game.scores[0]}
+                {this.props.game.players[0].username} <br/> <img src="/images/P0.png" height="44" width="44"/> {this.renderBomb(0)} <br/>{this.props.game.scores[0]}
               </div>
               <div className="ui column">
-                {this.props.game.players[1].username} <br/> <img src="/images/P1.png" height="44" width="44"/> <br/>{this.props.game.scores[1]}
+                {this.props.game.players[1].username} <br/> <img src="/images/P1.png" height="44" width="44"/> {this.renderBomb(1)} <br/>{this.props.game.scores[1]}
               </div>
             </div>
           </div>

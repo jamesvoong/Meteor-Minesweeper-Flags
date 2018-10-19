@@ -32,8 +32,9 @@ export class Game {
       this.turnOrder = [];
       this.currentTurn = 0;
       this.board = new Array(16);
-      this.hasBomb = [];
-      this.lastSelected = [null, null];
+      this.hasBomb = [true, true];
+      this.lastMove = [null, null];
+      this.lastSelected = [];
       for (var i = 0; i < this.board.length; i++) {
         this.board[i] = new Array(16);
       }
@@ -77,7 +78,7 @@ export class Game {
    * @return {[]String] List of fields required persistent storage
    */
   persistentFields() {
-    return ['status', 'board', 'hiddenBoard', 'players', 'scores', 'turnOrder', 'hasBomb', 'currentTurn', 'lastSelected'];
+    return ['status', 'board', 'hiddenBoard', 'players', 'scores', 'turnOrder', 'hasBomb', 'currentTurn', 'lastSelected', 'lastMove'];
   }
 
 /**
@@ -160,6 +161,7 @@ export class Game {
     }
 
     this.lastSelected = [null, null];
+    this.lastMove = [row, col];
     let winner = this.winner();
     if (winner !== null) {
       this.status = GameStatuses.FINISHED;
