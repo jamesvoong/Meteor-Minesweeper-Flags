@@ -28,47 +28,7 @@ export class Game {
     } else {
       this.status = GameStatuses.WAITING;
       this.players = [];
-      this.scores = new Array(8).fill(0);
-      this.turnOrder = [];
-      this.currentTurn = 0;
-      this.board = new Array(16);
-      this.hasBomb = [true, true];
-      this.lastMove = [null, null];
-      this.lastSelected = [];
-      for (var i = 0; i < this.board.length; i++) {
-        this.board[i] = new Array(16);
-      }
-
-      var mineCount = 0;
-
-      this.hiddenBoard = new Array(16);
-      for (var i = 0; i < this.hiddenBoard.length; i++) {
-        this.hiddenBoard[i] = new Array(16);
-      }
-      while(mineCount < 51) {
-        x = Math.floor((Math.random() * 16));
-        y = Math.floor((Math.random() * 16));
-        if (this.hiddenBoard[y][x]!= 'M') {
-          this.hiddenBoard[y][x] = 'M';
-          mineCount += 1;
-
-          for (var j = x-1; j < x+2; j++) {
-            for (var k = y-1; k < y+2; k++) {
-              if ((j >= 0) && (j <=15) && (k >= 0) && (k <= 15)) {
-                if (typeof this.hiddenBoard[k][j] == 'undefined') {
-                  this.hiddenBoard[k][j] = 1;
-                } else if (this.hiddenBoard[k][j] == 'M') {
-
-                } else {
-                  this.hiddenBoard[k][j] += 1;
-                }
-              }
-            }
-          }
-        }
-      }
-
-      console.log(this.hiddenBoard);
+      this.winCondition = [0, 26, 18, 13, 11, 9, 8, 7];
     }
   }
 
@@ -78,7 +38,7 @@ export class Game {
    * @return {[]String] List of fields required persistent storage
    */
   persistentFields() {
-    return ['status', 'board', 'hiddenBoard', 'players', 'scores', 'turnOrder', 'hasBomb', 'currentTurn', 'lastSelected', 'lastMove'];
+    return ['status', 'board', 'hiddenBoard', 'players', 'scores', 'turnOrder', 'hasBomb', 'currentTurn', 'lastSelected', 'lastMove', 'winCondition', 'finished', 'remainingMines'];
   }
 
 /**
@@ -99,9 +59,54 @@ export class Game {
       username: user.username
     });
 
-// game automatically start with 2 players
-    if (this.players.length === 2) {
+// game automatically start with 8 players
+    if (this.players.length === 8) {
       this.status = GameStatuses.STARTED;
+    }
+  }
+
+  userStart(){
+    this.status = GameStatuses.STARTED;
+    this.scores = new Array(this.players.length).fill(0);
+    this.finished = new Array(this.players.length).fill(false);
+    this.turnOrder = [];
+    this.currentTurn = 0;
+    this.board = new Array(16);
+    this.hasBomb = [true, true];
+    this.lastMove = [null, null];
+    this.lastSelected = [];
+    this.remainingMines = (this.winCondition[this.players.length-1]*this.players.length)-1
+    for (var i = 0; i < this.board.length; i++) {
+      this.board[i] = new Array(16);
+    }
+
+    var mineCount = 0;
+
+    this.hiddenBoard = new Array(16);
+    for (var i = 0; i < this.hiddenBoard.length; i++) {
+      this.hiddenBoard[i] = new Array(16);
+    }
+    while(mineCount < this.remainingMines) {
+      x = Math.floor((Math.random() * 16));
+      y = Math.floor((Math.random() * 16));
+      if (this.hiddenBoard[y][x]!= 'M') {
+        this.hiddenBoard[y][x] = 'M';
+        mineCount += 1;
+
+        for (var j = x-1; j < x+2; j++) {
+          for (var k = y-1; k < y+2; k++) {
+            if ((j >= 0) && (j <=15) && (k >= 0) && (k <= 15)) {
+              if (typeof this.hiddenBoard[k][j] == 'undefined') {
+                this.hiddenBoard[k][j] = 1;
+              } else if (this.hiddenBoard[k][j] == 'M') {
+
+              } else {
+                this.hiddenBoard[k][j] += 1;
+              }
+            }
+          }
+        }
+      }
     }
   }
 
@@ -151,20 +156,32 @@ export class Game {
 
     if (targetValue == "M") {
       this.board[row][col] = "P" + playerIndex;
-      this.scores[currentPlayerIndex] += 1
+      this.scores[currentPlayerIndex] += 1;
+      this.remainingMines = this.remainingMines - 1;
+      if (this.scores[currentPlayerIndex] >= this.winCondition[this.players.length-1]) {
+        this.finished[currentPlayerIndex] = true;
+        this.changeTurn();
+      }
     } else if (targetValue === null) {
       this.traverseZero(row, col);
-      this.currentTurn = (this.currentTurn + 1) % 2;
+      this.changeTurn();
+
     } else {
       this.board[row][col] = targetValue;
-      this.currentTurn = (this.currentTurn + 1) % 2;
+      this.changeTurn();
     }
 
     this.lastSelected = [null, null];
     this.lastMove = [row, col];
-    let winner = this.winner();
-    if (winner !== null) {
+    if (this.complete()) {
       this.status = GameStatuses.FINISHED;
+    }
+  }
+
+  changeTurn() {
+    this.currentTurn = (this.currentTurn + 1) % this.players.length;
+    while (this.finished[this.currentTurn] == true) {
+      this.currentTurn = (this.currentTurn + 1) % this.players.length;
     }
   }
 
@@ -212,14 +229,20 @@ export class Game {
     }
   }
 
-  winner() {
-    for (let i = 0; i < this.scores.length; i++) {
-      if (this.scores[i] >= 26) {
-        return i;
+  complete() {
+    counter = 0;
+    for (let i = 0; i < this.players.length; i++) {
+      if (this.scores[i] >= this.winCondition[this.players.length-1]) {
+        counter = counter + 1;
       }
     }
 
-    return null;
+    if (counter == this.players.length-1) {
+      return true;
+    }
+    else {
+      return null;
+    }
   }
 
 /**

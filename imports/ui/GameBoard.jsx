@@ -73,17 +73,29 @@ export default class GameBoard extends Component {
       let playerIndex = game.currentTurn;
       status = `Current Turn: ${game.players[playerIndex].username}`;
     } else if (game.status === GameStatuses.FINISHED) {
-      let playerIndex = game.winner();
-      if (playerIndex === null) {
-        status = "Finished: Tie";
-      } else {
-        status = `Finished: Winner: ${game.players[playerIndex].username}`;
-      }
+      status = "Game Over!";
     }
 
     return (
       <div>{status}</div>
     )
+  }
+
+  renderPlayers(){
+      let children = [];
+      let game = this.props.game;
+      //Inner loop to create children
+      for (let j = 0; j < game.players.length; j++) {
+        imgSource = "/images/P" + String(j) + ".png"
+        playerName = this.props.game.players[j].username
+        playerScore = this.props.game.scores[j]
+        if (game.finished[j] == true) {
+          children.push(<div className="ui column">{playerName}<br/><img src={imgSource} height="44" width="44"/><br/><b>{playerScore} Finished!</b></div>);
+        } else {
+          children.push(<div className="ui column">{playerName}<br/><img src={imgSource} height="44" width="44"/><br/>{playerScore}</div>);
+        }
+      }
+    return children
   }
 
   renderBomb(playerIndex) {
@@ -105,9 +117,20 @@ export default class GameBoard extends Component {
 
   }
 
+  renderInfo() {
+    let game = this.props.game;
+    let status = "";
+
+    minesRemaining = `Mines Remaining: ${game.remainingMines}`;
+    minesToFinish = `Mines Needed to Finish: ${game.winCondition[game.players.length-1]}`;
+
+    return (
+      <div>{minesRemaining}<br/>{minesToFinish}</div>
+    )
+  }
+
   renderTable() {
     let table = [];
-
     // Outer loop to create parent
     for (let i = 0; i < 16; i++) {
       let children = [];
@@ -131,15 +154,13 @@ export default class GameBoard extends Component {
 
         <div className="ui top attached header">
           <div className="ui grid">
-            <div className="ui two column center aligned row">
-              <div className="ui column">
-                {this.props.game.players[0].username} <br/> <img src="/images/P0.png" height="44" width="44"/> {this.renderBomb(0)} <br/>{this.props.game.scores[0]}
-              </div>
-              <div className="ui column">
-                {this.props.game.players[1].username} <br/> <img src="/images/P1.png" height="44" width="44"/> {this.renderBomb(1)} <br/>{this.props.game.scores[1]}
-              </div>
+            <div className="ui eight column center aligned row">
+              {this.renderPlayers()}
             </div>
           </div>
+        </div>
+        <div className="ui attached center aligned segment">
+          {this.renderInfo()}
         </div>
         <div className="ui attached center aligned segment">
           {this.renderStatus()}

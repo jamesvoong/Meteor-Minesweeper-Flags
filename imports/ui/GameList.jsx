@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import GameHeader from './GameHeader.jsx';
 import {Game, GameStatuses} from '../api/models/game.js';
-import {newGame, userJoinGame, userLeaveGame} from '../api/methods/games.js';
+import {newGame, userJoinGame, userLeaveGame, userStartGame} from '../api/methods/games.js';
 
 export default class GameList extends Component {
   handleNewGame() {
@@ -20,6 +20,11 @@ export default class GameList extends Component {
     this.props.enterGameHandler(gameId);
   }
 
+  handleStartGame(gameId) {
+    userStartGame.call({gameId: gameId});
+    this.props.startGameHandler(gameId);
+  }
+
   activeGames() {
     return _.filter(this.props.games, (game) => {
       return game.status === GameStatuses.WAITING || game.status === GameStatuses.STARTED;
@@ -36,6 +41,12 @@ export default class GameList extends Component {
   renderPlayers(game) {
     let player1 = game.players.length > 0? game.players[0].username: '(waiting)';
     let player2 = game.players.length > 1? game.players[1].username: '(waiting)';
+    let player3 = game.players.length > 2? game.players[2].username: '(waiting)';
+    let player4 = game.players.length > 3? game.players[3].username: '(waiting)';
+    let player5 = game.players.length > 4? game.players[4].username: '(waiting)';
+    let player6 = game.players.length > 5? game.players[5].username: '(waiting)';
+    let player7 = game.players.length > 6? game.players[6].username: '(waiting)';
+    let player8 = game.players.length > 7? game.players[7].username: '(waiting)';
     return (
       <div>
         <div>
@@ -43,6 +54,24 @@ export default class GameList extends Component {
         </div>
         <div>
           <i className="user icon"></i> {player2}
+        </div>
+        <div>
+          <i className="user icon"></i> {player3}
+        </div>
+        <div>
+          <i className="user icon"></i> {player4}
+        </div>
+        <div>
+          <i className="user icon"></i> {player5}
+        </div>
+        <div>
+          <i className="user icon"></i> {player6}
+        </div>
+        <div>
+          <i className="user icon"></i> {player7}
+        </div>
+        <div>
+          <i className="user icon"></i> {player8}
         </div>
       </div>
     )
@@ -77,6 +106,11 @@ export default class GameList extends Component {
                   {/* can leave only if user is in the game, and the game is not started */}
                   {this.myCurrentGameId() === game._id && game.status === GameStatuses.WAITING? (
                     <button className="ui red button" onClick={this.handleLeaveGame.bind(this, game._id)}>Leave</button>
+                  ): null}
+
+                  {/* can start if 2+ players and currently in game*/}
+                  {this.myCurrentGameId() === game._id && game.players.length > 1 && game.status === GameStatuses.WAITING?  (
+                    <button className="ui button" onClick={this.handleStartGame.bind(this, game._id)}>Start</button>
                   ): null}
 
                   {/* can join only if user is not in any game, and the game is not started */}

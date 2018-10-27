@@ -18,6 +18,16 @@ export const userJoinGame = new ValidatedMethod({
   }
 });
 
+export const userStartGame = new ValidatedMethod({
+  name: 'games.userStartGame',
+  validate: new SimpleSchema({
+    gameId: {type: String}
+  }).validator(),
+  run({gameId}) {
+    GamesController.userStartGame(gameId, Meteor.user());
+  }
+});
+
 export const userLeaveGame = new ValidatedMethod({
   name: 'games.userLeaveGame',
   validate: new SimpleSchema({

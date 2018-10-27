@@ -14,6 +14,12 @@ export let GamesController = {
     Games.saveGame(game);
   },
 
+  userStartGame(gameId, user) {
+    let game = Games.findOne(gameId);
+    game.userStart();
+    Games.saveGame(game);
+  },
+
   userLeaveGame(gameId, user) {
     let game = Games.findOne(gameId);
     game.userLeave(user);

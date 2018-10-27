@@ -17,6 +17,10 @@ class App extends Component {
     this.setState({selectedGameId: gameId});
   }
 
+  handleStartGame(gameId) {
+    this.setState({selectedGameId: gameId});
+  }
+
   handleBackToGameList() {
     this.setState({selectedGameId: null});
   }
