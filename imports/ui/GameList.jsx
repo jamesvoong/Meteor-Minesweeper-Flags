@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import GameHeader from './GameHeader.jsx';
 import {Game, GameStatuses} from '../api/models/game.js';
-import {newGame, userJoinGame, userLeaveGame, userStartGame} from '../api/methods/games.js';
+import {newGame, userJoinGame, userLeaveGame, userStartGame, userSwitchMode} from '../api/methods/games.js';
 
 export default class GameList extends Component {
   handleNewGame() {
@@ -23,6 +23,10 @@ export default class GameList extends Component {
   handleStartGame(gameId) {
     userStartGame.call({gameId: gameId});
     this.props.startGameHandler(gameId);
+  }
+
+  handleSwitchMode(gameId) {
+    userSwitchMode.call({gameId: gameId});
   }
 
   activeGames() {
@@ -77,6 +81,38 @@ export default class GameList extends Component {
     )
   }
 
+  renderSettings(game) {
+    if (this.myCurrentGameId() === game._id && game.status === GameStatuses.WAITING && game.gameMode == 'First Wins') {
+      return (
+        <div className="ui two item menu">
+          <a className="blue item active">First Wins</a>
+          <a className="blue item" onClick={this.handleSwitchMode.bind(this, game._id)}>Last Loses</a>
+        </div>
+      )
+    } else if (this.myCurrentGameId() === game._id && game.status === GameStatuses.WAITING && game.gameMode == 'Last Loses') {
+      return (
+        <div className="ui two item menu">
+          <a className="blue item" onClick={this.handleSwitchMode.bind(this, game._id)}>First Wins</a>
+          <a className="blue item active">Last Loses</a>
+        </div>
+      )
+    } else if (game.gameMode == 'First Wins'){
+      return (
+        <div className="ui two item menu">
+          <a className="blue item active">First Wins</a>
+          <a className="blue item">Last Loses</a>
+        </div>
+      )
+    } else {
+      return (
+        <div className="ui two item menu">
+          <a className="blue item">First Wins</a>
+          <a className="blue item active">Last Loses</a>
+        </div>
+      )
+    }
+  }
+
   render() {
     return (
     <div className="ui container">
@@ -100,6 +136,10 @@ export default class GameList extends Component {
                 </div>
                 <div className="content">
                   {this.renderPlayers(game)}
+                </div>
+
+                <div className="extra content">
+                  {this.renderSettings(game)}
                 </div>
 
                 <div className="extra content">

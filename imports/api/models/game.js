@@ -29,6 +29,7 @@ export class Game {
       this.status = GameStatuses.WAITING;
       this.players = [];
       this.winCondition = [0, 26, 18, 13, 11, 9, 8, 7];
+      this.gameMode = 'First Wins';
     }
   }
 
@@ -38,7 +39,7 @@ export class Game {
    * @return {[]String] List of fields required persistent storage
    */
   persistentFields() {
-    return ['status', 'board', 'hiddenBoard', 'players', 'scores', 'turnOrder', 'hasBomb', 'currentTurn', 'lastSelected', 'lastMove', 'winCondition', 'finished', 'remainingMines'];
+    return ['status', 'board', 'hiddenBoard', 'players', 'scores', 'turnOrder', 'hasBomb', 'currentTurn', 'lastSelected', 'lastMove', 'winCondition', 'finished', 'remainingMines', 'gameMode'];
   }
 
 /**
@@ -65,6 +66,16 @@ export class Game {
     }
   }
 
+  userSwitchMode() {
+    if (this.gameMode == 'First Wins') {
+      console.log("First Wins")
+      this.gameMode = 'Last Loses';
+    } else {
+      console.log("Last Loses")
+      this.gameMode = 'First Wins';
+    }
+  }
+
   userStart(){
     this.status = GameStatuses.STARTED;
     this.scores = new Array(this.players.length).fill(0);
@@ -75,17 +86,23 @@ export class Game {
     this.hasBomb = [true, true];
     this.lastMove = [null, null];
     this.lastSelected = [];
-    this.remainingMines = (this.winCondition[this.players.length-1]*this.players.length)-1
+
     for (var i = 0; i < this.board.length; i++) {
       this.board[i] = new Array(16);
     }
-
-    var mineCount = 0;
-
     this.hiddenBoard = new Array(16);
     for (var i = 0; i < this.hiddenBoard.length; i++) {
       this.hiddenBoard[i] = new Array(16);
     }
+
+    var mineCount = 0;
+    if (this.gameMode == 'Last Loses') {
+      this.remainingMines = (this.winCondition[this.players.length-1]*this.players.length)-1;
+    } else {
+      this.remainingMines = (this.winCondition[this.players.length-1]*this.players.length)-this.players.length+1;
+    }
+
+
     while(mineCount < this.remainingMines) {
       x = Math.floor((Math.random() * 16));
       y = Math.floor((Math.random() * 16));
@@ -230,17 +247,26 @@ export class Game {
   }
 
   complete() {
-    counter = 0;
-    for (let i = 0; i < this.players.length; i++) {
-      if (this.scores[i] >= this.winCondition[this.players.length-1]) {
-        counter = counter + 1;
+    if (this.gameMode == 'Last Loses') {
+      counter = 0;
+      for (let i = 0; i < this.players.length; i++) {
+        if (this.scores[i] >= this.winCondition[this.players.length-1]) {
+          counter = counter + 1;
+        }
       }
-    }
 
-    if (counter == this.players.length-1) {
-      return true;
-    }
-    else {
+      if (counter == this.players.length-1) {
+        return true;
+      }
+      else {
+        return null;
+      }
+    } else {
+      for (let i = 0; i < this.players.length; i++) {
+        if (this.scores[i] >= this.winCondition[this.players.length-1]) {
+          return true;
+        }
+      }
       return null;
     }
   }

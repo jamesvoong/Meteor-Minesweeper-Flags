@@ -36,5 +36,11 @@ export let GamesController = {
     let game = Games.findOne(gameId);
     game.userSelect(user, row, col);
     Games.saveGame(game);
+  },
+
+  userSwitchMode(gameId, user) {
+    let game = Games.findOne(gameId);
+    game.userSwitchMode();
+    Games.saveGame(game);
   }
 }

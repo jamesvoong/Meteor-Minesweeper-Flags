@@ -123,9 +123,10 @@ export default class GameBoard extends Component {
 
     minesRemaining = `Mines Remaining: ${game.remainingMines}`;
     minesToFinish = `Mines Needed to Finish: ${game.winCondition[game.players.length-1]}`;
+    gameMode = `Current GameMode: ${game.gameMode}`;
 
     return (
-      <div>{minesRemaining}<br/>{minesToFinish}</div>
+      <div>{minesRemaining}<br/>{minesToFinish}<br/>{gameMode}</div>
     )
   }
 

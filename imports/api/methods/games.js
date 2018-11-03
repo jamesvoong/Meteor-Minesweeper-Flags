@@ -28,6 +28,16 @@ export const userStartGame = new ValidatedMethod({
   }
 });
 
+export const userSwitchMode = new ValidatedMethod({
+  name: 'games.userSwitchMode',
+  validate: new SimpleSchema({
+    gameId: {type: String}
+  }).validator(),
+  run({gameId}) {
+    GamesController.userSwitchMode(gameId, Meteor.user());
+  }
+});
+
 export const userLeaveGame = new ValidatedMethod({
   name: 'games.userLeaveGame',
   validate: new SimpleSchema({
