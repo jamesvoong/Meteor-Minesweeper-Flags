@@ -71,17 +71,23 @@ export default class GameBoard extends Component {
     let status = "";
     if (game.status === GameStatuses.STARTED) {
       let playerIndex = game.currentTurn;
+      imgSource = "/images/P" + String(playerIndex) + ".png"
       status = `Current Turn: ${game.players[playerIndex].username}`;
     } else if (game.status === GameStatuses.FINISHED) {
+      imgSource = "/images/gameOver.png";
       status = "Game Over!";
     }
 
     return (
-      <div>{status}</div>
+      <div className="ui huge image label">
+        <img src={imgSource}/>
+        {status}
+      </div>
     )
   }
 
   renderPlayers(){
+      numArray = ['two', 'three', 'four', 'five', 'six', 'seven', 'eight'];
       let children = [];
       let game = this.props.game;
       //Inner loop to create children
@@ -90,12 +96,18 @@ export default class GameBoard extends Component {
         playerName = this.props.game.players[j].username
         playerScore = this.props.game.scores[j]
         if (game.finished[j] == true) {
-          children.push(<div className="ui column">{playerName}<br/><img src={imgSource} height="44" width="44"/><br/><b>{playerScore} Finished!</b></div>);
+          children.push(<div className="ui column"><img src={imgSource} height="44" width="44"/><br/>{playerName}<br/><b>{playerScore} Finished!</b></div>);
         } else {
-          children.push(<div className="ui column">{playerName}<br/><img src={imgSource} height="44" width="44"/><br/>{playerScore}</div>);
+          children.push(<div className="ui column"><img src={imgSource} height="44" width="44"/><br/>{playerName}<br/>{playerScore}</div>);
         }
       }
-    return children
+      cname = `ui ${numArray[game.players.length-2]} column center aligned row`;
+
+    return (
+      <div className={cname}>
+        {children}
+      </div>
+    )
   }
 
   renderBomb(playerIndex) {
@@ -122,11 +134,25 @@ export default class GameBoard extends Component {
     let status = "";
 
     minesRemaining = `Mines Remaining: ${game.remainingMines}`;
-    minesToFinish = `Mines Needed to Finish: ${game.winCondition[game.players.length-1]}`;
-    gameMode = `Current GameMode: ${game.gameMode}`;
+    minesToFinish = `Flags Needed to Finish: ${game.winCondition[game.players.length-1]}`;
+    gameMode = `GameMode: ${game.gameMode}`;
 
     return (
-      <div>{minesRemaining}<br/>{minesToFinish}<br/>{gameMode}</div>
+      //<div><img src='/images/M.png' height="44" width="44"/>{minesRemaining}<br/>{minesToFinish}<br/>{gameMode}</div>
+      <div>
+          <div className="ui huge image label">
+            <img src="/images/M.png"/>
+            {minesRemaining}
+          </div>
+          <div className="ui huge image label">
+            <img src="/images/P0.png"/>
+            {minesToFinish}
+          </div>
+          <div className="ui huge image label">
+            <img src="/images/gameMode.png"/>
+            {gameMode}
+          </div>
+        </div>
     )
   }
 
@@ -153,20 +179,17 @@ export default class GameBoard extends Component {
 
         <button className="ui button blue" onClick={this.handleBackToGameList.bind(this)}>Back to Lobby</button>
 
-        <div className="ui top attached header">
-          <div className="ui grid">
-            <div className="ui eight column center aligned row">
-              {this.renderPlayers()}
-            </div>
-          </div>
-        </div>
         <div className="ui attached center aligned segment">
           {this.renderInfo()}
         </div>
         <div className="ui attached center aligned segment">
           {this.renderStatus()}
         </div>
-
+        <div className="ui attached center aligned segment">
+          <div className="ui grid">
+              {this.renderPlayers()}
+          </div>
+        </div>
         <div className="ui attached segment">
           <table className="game-board">
             <tbody>
