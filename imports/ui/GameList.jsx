@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import GameHeader from './GameHeader.jsx';
 import {Game, GameStatuses} from '../api/models/game.js';
-import {newGame, userJoinGame, userLeaveGame, userStartGame, userSwitchMode} from '../api/methods/games.js';
+import {newGame, userJoinGame, userLeaveGame, userStartGame, userSwitchMode, userShuffle} from '../api/methods/games.js';
 
 export default class GameList extends Component {
   handleNewGame() {
@@ -29,6 +29,10 @@ export default class GameList extends Component {
     userSwitchMode.call({gameId: gameId});
   }
 
+  handleShufflePlayers(gameId) {
+    userShuffle.call({gameId: gameId});
+  }
+
   activeGames() {
     return _.filter(this.props.games, (game) => {
       return game.status === GameStatuses.WAITING || game.status === GameStatuses.STARTED;
@@ -43,14 +47,14 @@ export default class GameList extends Component {
   }
 
   renderPlayers(game) {
-    let player1 = game.players.length > 0? game.players[0].username: '(waiting)';
-    let player2 = game.players.length > 1? game.players[1].username: '(waiting)';
-    let player3 = game.players.length > 2? game.players[2].username: '(waiting)';
-    let player4 = game.players.length > 3? game.players[3].username: '(waiting)';
-    let player5 = game.players.length > 4? game.players[4].username: '(waiting)';
-    let player6 = game.players.length > 5? game.players[5].username: '(waiting)';
-    let player7 = game.players.length > 6? game.players[6].username: '(waiting)';
-    let player8 = game.players.length > 7? game.players[7].username: '(waiting)';
+    let player1 = game.players.length > 0? game.players[0].username: '(Waiting)';
+    let player2 = game.players.length > 1? game.players[1].username: '(Waiting)';
+    let player3 = game.players.length > 2? game.players[2].username: '(Waiting)';
+    let player4 = game.players.length > 3? game.players[3].username: '(Waiting)';
+    let player5 = game.players.length > 4? game.players[4].username: '(Waiting)';
+    let player6 = game.players.length > 5? game.players[5].username: '(Waiting)';
+    let player7 = game.players.length > 6? game.players[6].username: '(Waiting)';
+    let player8 = game.players.length > 7? game.players[7].username: '(Waiting)';
     return (
       <div>
         <div>
@@ -146,6 +150,10 @@ export default class GameList extends Component {
                   {/* can leave only if user is in the game, and the game is not started */}
                   {this.myCurrentGameId() === game._id && game.status === GameStatuses.WAITING? (
                     <button className="ui red button" onClick={this.handleLeaveGame.bind(this, game._id)}>Leave</button>
+                  ): null}
+
+                  {this.myCurrentGameId() === game._id && game.players.length > 2 && game.status === GameStatuses.WAITING?  (
+                    <button className="ui button" onClick={this.handleShufflePlayers.bind(this, game._id)}>Shuffle</button>
                   ): null}
 
                   {/* can start if 2+ players and currently in game*/}

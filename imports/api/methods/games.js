@@ -28,6 +28,16 @@ export const userStartGame = new ValidatedMethod({
   }
 });
 
+export const userShuffle = new ValidatedMethod({
+  name: 'games.userShuffle',
+  validate: new SimpleSchema({
+    gameId: {type: String}
+  }).validator(),
+  run({gameId}) {
+    GamesController.userShuffle(gameId, Meteor.user());
+  }
+});
+
 export const userSwitchMode = new ValidatedMethod({
   name: 'games.userSwitchMode',
   validate: new SimpleSchema({

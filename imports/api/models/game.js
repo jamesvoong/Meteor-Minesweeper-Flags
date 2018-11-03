@@ -149,6 +149,16 @@ export class Game {
     }
   }
 
+  userShuffle() {
+    var j, x, i;
+    for (i = this.players.length - 1; i > 0; i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        x = this.players[i];
+        this.players[i] = this.players[j];
+        this.players[j] = x;
+    }
+  }
+
 /**
    * Handle user action. i.e. putting marker on the game board
    *

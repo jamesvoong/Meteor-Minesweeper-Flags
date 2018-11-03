@@ -20,6 +20,12 @@ export let GamesController = {
     Games.saveGame(game);
   },
 
+  userShuffle(gameId, user) {
+    let game = Games.findOne(gameId);
+    game.userShuffle();
+    Games.saveGame(game);
+  },
+
   userLeaveGame(gameId, user) {
     let game = Games.findOne(gameId);
     game.userLeave(user);

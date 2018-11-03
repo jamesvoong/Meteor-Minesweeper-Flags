@@ -7,6 +7,7 @@ export default class GameBoard extends Component {
   handleCellClick(row, col) {
     console.log('Handling Click')
     let game = this.props.game;
+    let currentPlayer = game.currentTurn;
     if (game.status === GameStatuses.FINISHED) return;
     if (game.currentTurn !== game.userIndex(this.props.user)) return;
     if (game.lastSelected[0] != row || game.lastSelected[1] != col) {
@@ -14,7 +15,11 @@ export default class GameBoard extends Component {
     } else {
       userMarkGame.call({gameId: game._id, row: row, col: col});
       if (game.hiddenBoard[row][col] == 'M') {
-        new Audio('/audio/Flag.mp3').play();
+        if (game.scores[currentPlayer]+1 >= game.winCondition[game.players.length-1]) {
+          new Audio('/audio/Victory.mp3').play();
+        } else {
+          new Audio('/audio/Flag.mp3').play();
+        }
       } else {
         new Audio('/audio/Sploosh.mp3').play();
       }
@@ -33,8 +38,6 @@ export default class GameBoard extends Component {
     let LSC = game.lastSelected[1];
     let LMR = game.lastMove[0];
     let LMC = game.lastMove[1];
-    console.log(game.currentTurn);
-    console.log(game.userIndex(this.props.user));
     if (value === null && LSR == row && LSC == col && game.currentTurn == game.userIndex(this.props.user)) {
       console.log("lastSelected changed")
       return (
@@ -183,12 +186,12 @@ export default class GameBoard extends Component {
           {this.renderInfo()}
         </div>
         <div className="ui attached center aligned segment">
-          {this.renderStatus()}
-        </div>
-        <div className="ui attached center aligned segment">
           <div className="ui grid">
               {this.renderPlayers()}
           </div>
+        </div>
+        <div className="ui attached center aligned segment">
+          {this.renderStatus()}
         </div>
         <div className="ui attached segment">
           <table className="game-board">
