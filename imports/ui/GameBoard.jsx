@@ -165,8 +165,7 @@ export default class GameBoard extends Component {
     return table
   }
 
-  render() {
-    console.log("Attempting to render")
+  renderSound() {
     let game = this.props.game;
     if (game.lastMove[0] == null || game.lastSelected[0] !== null) {
       console.log("New Game");
@@ -179,7 +178,12 @@ export default class GameBoard extends Component {
     } else {
       new Audio('/audio/Sploosh.mp3').play();
     }
+    return (
+      <div></div>
+    )
+  }
 
+  render() {
     return (
       <div className="ui container">
         <GameHeader user={this.props.user}/>
@@ -204,7 +208,9 @@ export default class GameBoard extends Component {
             </tbody>
           </table>
         </div>
+        {this.renderSound()}
       </div>
+
     )
   }
 }
