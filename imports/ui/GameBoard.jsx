@@ -4,6 +4,7 @@ import {Game, GameStatuses} from '../api/models/game.js';
 import {userMarkGame, userSelectGame} from '../api/methods/games.js';
 
 export default class GameBoard extends Component {
+
   handleCellClick(row, col) {
     console.log('Handling Click')
     let game = this.props.game;
@@ -14,16 +15,6 @@ export default class GameBoard extends Component {
       userSelectGame.call({gameId: game._id, row: row, col: col})
     } else {
       userMarkGame.call({gameId: game._id, row: row, col: col});
-      if (game.hiddenBoard[row][col] == 'M') {
-        if (game.scores[currentPlayer]+1 >= game.winCondition[game.players.length-1]) {
-          new Audio('/audio/Victory.mp3').play();
-        } else {
-          new Audio('/audio/Flag.mp3').play();
-        }
-      } else {
-        new Audio('/audio/Sploosh.mp3').play();
-      }
-
     }
   }
 
@@ -176,6 +167,19 @@ export default class GameBoard extends Component {
 
   render() {
     console.log("Attempting to render")
+    let game = this.props.game;
+    if (game.lastMove[0] == null || game.lastSelected[0] !== null) {
+      console.log("New Game");
+    } else if (game.hiddenBoard[game.lastMove[0]][game.lastMove[1]] == 'M') {
+      if (game.scores[game.lastMove[2]]+1 >= game.winCondition[game.players.length-1]) {
+        new Audio('/audio/Victory.mp3').play();
+      } else {
+        new Audio('/audio/Flag.mp3').play();
+      }
+    } else {
+      new Audio('/audio/Sploosh.mp3').play();
+    }
+
     return (
       <div className="ui container">
         <GameHeader user={this.props.user}/>

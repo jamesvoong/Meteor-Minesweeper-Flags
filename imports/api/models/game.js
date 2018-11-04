@@ -84,8 +84,8 @@ export class Game {
     this.currentTurn = 0;
     this.board = new Array(16);
     this.hasBomb = [true, true];
-    this.lastMove = [null, null];
-    this.lastSelected = [];
+    this.lastMove = [null, null, null];
+    this.lastSelected = [null, null];
 
     for (var i = 0; i < this.board.length; i++) {
       this.board[i] = new Array(16);
@@ -199,7 +199,7 @@ export class Game {
     }
 
     this.lastSelected = [null, null];
-    this.lastMove = [row, col];
+    this.lastMove = [row, col, currentPlayerIndex];
     if (this.complete()) {
       this.status = GameStatuses.FINISHED;
     }
@@ -235,6 +235,10 @@ export class Game {
       return null;
     }
 
+  }
+
+  playSound(soundName) {
+    new Audio(`/audio/${soundName}.mp3`).play();
   }
 
   traverseZero(row, col) {
