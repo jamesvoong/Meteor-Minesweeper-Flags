@@ -171,7 +171,7 @@ export default class GameBoard extends Component {
     if (game.lastMove[0] == null || game.lastSelected[0] !== null) {
       console.log("New Game");
     } else if (game.hiddenBoard[game.lastMove[0]][game.lastMove[1]] == 'M') {
-      if (game.scores[game.lastMove[2]]+1 >= game.winCondition[game.players.length-1]) {
+      if (game.scores[game.lastMove[2]] >= game.winCondition[game.players.length-1]) {
         new Audio('/audio/Victory.mp3').play();
       } else {
         new Audio('/audio/Flag.mp3').play();
